@@ -1,10 +1,10 @@
 <template>
     <div id="app">
-      <HeaderBar @toggleMenu="toggleMenu" />
-      <div class="main-content">
-        <MenuSidebar v-if="isMenuOpen" @selectTopic="selectTopic" />
-        <AdventureList :selectedTopic="selectedTopic" />
-      </div>
+        <HeaderBar @toggleMenu="toggleMenu" />
+        <div class="main-content">
+            <MenuSidebar v-if="isMenuOpen" @selectTopic="selectTopic" />
+            <AdventureList :selectedTopic="selectedTopic" />
+        </div>
     </div>
 </template>
   
@@ -38,6 +38,7 @@ const selectTopic = (topic: string) => {
 
 .main-content {
     display: flex;
+    height: calc(100vh - 52px);
 }
 </style>
 
