@@ -8,18 +8,23 @@
             <div class="rating-section">
                 <p class="rating-text">Rating</p>
                 <div class="rating">
-                    <span v-for="star in 5" :key="star" class="star" :class="{ filled: star <= rating }">★</span>
+                    <span 
+                        v-for="star in 5" 
+                        :key="star" 
+                        class="star"
+                        :style="starStyle(star)"
+                    >★</span>
                 </div>
             </div>
             <img :src="avatar" alt="Avatar" class="avatar" />
         </div>
         <p class="commentary">{{ commentary }}</p>
-        <button class="like-button" @click="toggleLike">{{ liked ? 'Liked' : 'Like' }}</button>
+        <button class="like-button" @click="emitLike">{{ 'Like' }}</button>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, defineEmits } from 'vue';
 
 interface Props {
     personName: string;
@@ -30,12 +35,33 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const liked = ref(false);
 
-const toggleLike = () => {
-    liked.value = !liked.value;
+// Emit event instead of toggling like state
+const emit = defineEmits(['like']);
+const emitLike = () => {
+    emit('like');
 };
 
+// Function to get style for each star
+const starStyle = (star: number) => {
+    if (star <= Math.floor(props.rating)) {
+        // Full star
+        return { color: '#ffc107' };
+    } else if (star === Math.ceil(props.rating) && props.rating % 1 !== 0) {
+        // Partial star
+        const partialWidth = (props.rating % 1) * 100;
+        return {
+            background: `linear-gradient(90deg, #ffc107 ${partialWidth}%, #ffffff ${partialWidth}%)`,
+            '-webkit-background-clip': 'text',
+            color: 'transparent'
+        };
+    } else {
+        // Empty star
+        return { color: '#ffffff' };
+    }
+};
+
+// Format date and time
 const formattedDate = computed(() => {
     const currentDate = new Date();
     const date = new Date(props.pubDate);
@@ -58,7 +84,7 @@ const formattedTime = computed(() => {
     return `${hours}:${minutes}`;
 });
 </script>
-  
+
 <style scoped>
 .card {
     background-color: #5ecff2;
@@ -116,10 +142,6 @@ const formattedTime = computed(() => {
 .star {
     font-size: 18px;
     color: #ffffff;
-}
-
-.star.filled {
-    color: #ffc107;
 }
 
 .avatar {
