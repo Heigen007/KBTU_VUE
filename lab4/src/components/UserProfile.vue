@@ -4,13 +4,12 @@
         <div style="font-size: 54px">{{ isCurrentUser ? 'My Profile' : 'Profile' }}</div>
       </div>
       <div class="content">
-        <!-- Left Column: User Info -->
         <div class="left-column">
           <div class="img">
             <img :src="user?.Avatar" alt="Avatar" class="avatar" />
           </div>
           <div class="details">
-            <div class="text-white" style="font-size: 24px">{{ user?.PersonName }}</div>
+            <strong class="text-black" style="font-size: 24px">{{ user?.PersonName }}</strong>
             <div class="ddd">Age: <span class="dd">{{ user?.Age }}</span></div>
             <div class="ddd">Location: <span class="dd">{{ user?.Location }}</span></div>
             <div :class="isCurrentUser ? 'active' : 'inactive'" class="ddd">
@@ -28,7 +27,6 @@
           </div>
         </div>
   
-        <!-- Right Column: Buttons -->
         <div class="right-column">
           <button @click="toggleFavorite" :class="isFavorite ? 'unfollow-btn' : 'follow-btn'">
             {{ isFavorite ? 'UNFOLLOW' : 'FOLLOW' }}
@@ -43,7 +41,6 @@
         </div>
       </div>
   
-      <!-- Bottom: Latest Posts -->
       <div class="latest-posts">
         <h3>Latest posts</h3>
         <div class="cards">
@@ -58,15 +55,14 @@
         </div>
       </div>
     </div>
-  </template>
+</template>
   
-  <script setup>
-import { ref, computed, onMounted } from 'vue';
+<script setup>
+import { ref, computed } from 'vue';
 import Card from './Card.vue';
 import { getCurrentUserId, getByUserId, getCurrentUser, removeFavoritePerson, addFavoritePerson, getFavorites } from '@/storage/auth';
 import { useRoute } from 'vue-router';
 import authService from '@/storage/auth';
-
 
 const route = useRoute();
 const userId = ref(route.params.userId);
@@ -76,7 +72,6 @@ if (getCurrentUserId() === userId.value) {
 } else {
     user.value = getByUserId(userId.value);
 }
-
 
 const isCurrentUser = computed(() => getCurrentUserId() == userId.value);
 const isFavorite = computed(() => {
@@ -113,7 +108,7 @@ const starStyle = (star) => {
             color: 'transparent'
         };
     } else {
-        return { color: '#ffffff' };
+        return { color: '#dcdcdc' };
     }
 };
 
@@ -139,20 +134,19 @@ const posts = computed(() => {
     return finalCommentsArray;
 });
 </script>
-  
-  <style scoped>
+
+<style scoped>
 .profile-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgb(165, 213, 255);
-    width: 100vw;
+    background: aliceblue;
     min-height: 88.7vh;
     font-family: Inknut Antiqua;
 }
 
 .profile-header {
-    color: white;
+    color: black;
     font-size: 24px;
     font-weight: 400;
     text-align: left;
@@ -181,13 +175,13 @@ const posts = computed(() => {
 }
 
 .dd {
-    color: white;
+    color: black;
     padding: 5px 10px;
     border-radius: 5px;
 }
 
 .ddd {
-    color: #FCFF62;
+    color: black;
 }
 
 .img {
@@ -269,4 +263,3 @@ button {
     background-color: #d32f2f;
 }
 </style>
-  

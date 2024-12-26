@@ -1,4 +1,4 @@
-import { reactive, ref } from "vue";
+import { reactive, Ref, ref } from "vue";
 
 interface Person {
     id: number;
@@ -49,8 +49,8 @@ interface UpdateProfileData {
 
 class AuthService {
     people: Person[] = reactive(JSON.parse(localStorage.getItem('people') || '[]'));
-    currentUser: Person | null = null;
-    isAuthenticated: boolean = Boolean(this.currentUser);
+    currentUser: Ref<Person | null> = ref(null);
+    isAuthenticated = ref(Boolean(this.currentUser.value));
     selectedTopic = ref('Adventure');
 
     constructor() {
@@ -72,8 +72,8 @@ class AuthService {
     private setCurrentUser() {
         const userEmail = localStorage.getItem('user');
         const foundUser = userEmail ? this.people.find(person => person.Email === userEmail) : null;
-        this.currentUser = foundUser || null;
-        this.isAuthenticated = !!this.currentUser;
+        this.currentUser.value = foundUser || null;
+        this.isAuthenticated.value = !!this.currentUser.value;
     }
 
     private seedInitialPeople(): Person[] {
@@ -453,13 +453,13 @@ class AuthService {
     private saveCurrentUserToLocalStorage(): void {
         const people: Person[] = JSON.parse(localStorage.getItem('people') || '[]');
 
-        if (this.currentUser) {
-            const existingUserIndex = people.findIndex((user: Person) => user.id === this.currentUser?.id);
+        if (this.currentUser.value) {
+            const existingUserIndex = people.findIndex((user: Person) => user.id === this.currentUser.value?.id);
 
             if (existingUserIndex !== -1) {
-                people[existingUserIndex] = this.currentUser;
+                people[existingUserIndex] = this.currentUser.value;
             } else {
-                people.push(this.currentUser);
+                people.push(this.currentUser.value);
             }
             localStorage.setItem('people', JSON.stringify(people));
         } else {
@@ -492,30 +492,36 @@ class AuthService {
         };
 
         this.people.push(newUser);
-        this.currentUser = newUser;
+        this.currentUser.value = newUser;
         this.savePeopleToLocalStorage();
+        this.saveCurrentUserToLocalStorage();
+        this.isAuthenticated.value = true;
+        localStorage.setItem('user', Email);
     }
 
     login({ Email, Password }: LoginData): void {
         const user = this.people.find(person => person.Email === Email && person.Password === Password);
         if (!user) throw new Error('Invalid email or password');
 
-        this.currentUser = user;
+        this.currentUser.value = user;
+        this.isAuthenticated.value = true;
+        this.saveCurrentUserToLocalStorage();
+        localStorage.setItem('user', Email);
     }
 
     logout(): void {
-        this.isAuthenticated = false;
-        this.currentUser = null;
+        this.isAuthenticated.value = false;
+        this.currentUser.value = null;
         localStorage.removeItem('currentUser');
     }
 
     addFavorite(userId: number): void {
         const id = Number(userId);
-        if (!this.currentUser?.favorites.includes(userId)) {
-            this.currentUser?.favorites.push(id);
+        if (!this.currentUser.value?.favorites.includes(userId)) {
+            this.currentUser.value?.favorites.push(id);
             const person = this.people.find(person => person.id === id);
             if (person) {
-                person.favorites.push(this.currentUser!.id);
+                person.favorites.push(this.currentUser.value!.id);
                 this.savePeopleToLocalStorage();
             }
             this.updateCurrentUserInPeople();
@@ -524,8 +530,8 @@ class AuthService {
     }
 
     removeFavorite(userId: number): void {
-        if (this.currentUser != null) {
-            this.currentUser.favorites = this.currentUser?.favorites.filter(id => id != userId);
+        if (this.currentUser.value != null) {
+            this.currentUser.value.favorites = this.currentUser.value?.favorites.filter(id => id != userId);
             this.updateCurrentUserInPeople();
             this.saveCurrentUserToLocalStorage();
         }
@@ -542,18 +548,18 @@ class AuthService {
     }
 
     updateProfile(updatedData: UpdateProfileData): void {
-        if (this.currentUser) {
-            Object.assign(this.currentUser, updatedData);
+        if (this.currentUser.value) {
+            Object.assign(this.currentUser.value, updatedData);
             this.updateCurrentUserInPeople();
             this.saveCurrentUserToLocalStorage();
         }
     }
 
     private updateCurrentUserInPeople(): void {
-        if (this.currentUser) {
-            const index = this.people.findIndex(person => person.id === this.currentUser!.id);
+        if (this.currentUser.value) {
+            const index = this.people.findIndex(person => person.id === this.currentUser.value!.id);
             if (index !== -1) {
-                this.people[index] = this.currentUser!;
+                this.people[index] = this.currentUser.value!;
                 this.savePeopleToLocalStorage();
             }
         }
@@ -588,8 +594,7 @@ class AuthService {
 const authService = new AuthService();
 
 export function getIsAuthenticated(): boolean {
-    const user = localStorage.getItem('user');
-    return !!user;
+    return authService.isAuthenticated.value;
 }
 
 export function registerUser(PersonName: string, Email: string, Password: string, Age: number, Location: string): void {
@@ -615,12 +620,12 @@ export function logoutUser(): void {
     localStorage.removeItem('user');
 }
 
-export function getCurrentUser(): string | null {
-    return localStorage.getItem('user');
+export function getCurrentUser(): Person | null {
+    return authService.currentUser.value;
 }
 
 export function getCurrentUserId(): number {
-    const user = authService.currentUser;
+    const user = authService.currentUser.value;
     return user ? user.id : 0;
 }
 
@@ -644,7 +649,7 @@ export function removeFavoritePerson(userId: number): void {
 }
 
 export function getFavorites(): number[] {
-    return authService.currentUser?.favorites || [];
+    return authService.currentUser.value?.favorites || [];
 }
 
 export function getPeople(): Person[] {

@@ -7,7 +7,6 @@
           <q-input v-model="editData.PersonName" placeholder="Name" />
           <q-input v-model="editData.Age" placeholder="Age" type="number" />
           <q-input v-model="editData.Location" placeholder="Location" />
-          <q-input v-model="editData.Commentary" placeholder="Commentary" />
           <br><br>
           <q-uploader
             @added="handleAvatarUpload"
@@ -30,14 +29,15 @@
   <script setup>
 import { ref } from 'vue';
 import { QBtn, QInput, QUploader, QImg } from 'quasar';
-import authService from '@/storage/auth';
+import { useRoute } from 'vue-router';
+import authService, { getByUserId } from '@/storage/auth';
 
-  const props = defineProps({
-    user: Object,
-  })
+  
+const route = useRoute();
+const currentUser = ref(getByUserId(route.params.userId));  
 
-  const isEditing = ref(false);
-const editData = ref({ ...props.user });
+const isEditing = ref(false);
+const editData = ref({ ...currentUser.value });
 const previewImage = ref('');
 
 const redirect = () => {
@@ -48,6 +48,8 @@ const redirect = () => {
 const saveProfile = () => {
   authService.updateProfile(editData.value);
   isEditing.value = false;
+  console.log(editData.value);
+  
   window.location.href = '/profile/' + editData.value.id;
 };
 
@@ -62,7 +64,7 @@ const handleAvatarUpload = (file) => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: aliceblue;
   text-align: center;
 }
 .profile-container{

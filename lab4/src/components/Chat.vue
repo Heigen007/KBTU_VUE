@@ -4,7 +4,7 @@
       <q-scroll-area class="chat-box">
         <div v-for="(message, index) in messages" :key="index" :class="['chat-message', message.isUser ? 'user-message' : 'opponent-message']">
           <q-avatar v-if="!message.isUser" size="50px" class="q-mr-sm">
-            <img src="https://via.placeholder.com/50x50" alt="Opponent Avatar" />
+            <img :src="currentUser.Avatar" alt="Opponent Avatar" />
           </q-avatar>
           <div class="message-content">
             <q-item-label class="message-author">{{ message.isUser ? 'You' : currentUser.PersonName }}</q-item-label>
@@ -12,7 +12,7 @@
             <q-item-label caption class="message-status">For now</q-item-label>
           </div>
           <q-avatar v-if="message.isUser" size="50px" class="q-ml-sm">
-            <img src="https://via.placeholder.com/50x50" alt="User Avatar" />
+            <img :src="systemUser.Avatar" alt="User Avatar" style="height: auto" />
           </q-avatar>
         </div>
       </q-scroll-area>
@@ -29,12 +29,13 @@
   import { ref } from 'vue';
   import { QInput, QBtn, QAvatar, QScrollArea, QItemLabel } from 'quasar';
   import {useRoute} from 'vue-router';
-  import { getByUserId } from '@/storage/auth';
+  import { getByUserId, getCurrentUser } from '@/storage/auth';
   
   const messages = ref([]); // Chat history
   const newMessage = ref(''); // Current message input
   const route = useRoute();
   const currentUser = ref(getByUserId(route.params.userId));
+  const systemUser = ref(getCurrentUser());
 
   // Send message function
   const sendMessage = () => {

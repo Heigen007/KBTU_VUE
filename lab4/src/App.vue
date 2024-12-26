@@ -35,7 +35,7 @@ const selectTopic = (topic: string) => {
 
 .main-content {
     display: flex;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: aliceblue;
     height: calc(100vh - 52px);
 }
 

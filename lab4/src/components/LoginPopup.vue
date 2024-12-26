@@ -3,9 +3,9 @@
   <q-page-container class="login-container">
     <h2>Login</h2>
     <form @submit.prevent="login">
-      <q-input class="input" v-model="email" type="email" placeholder="Email" required />
-      <q-input class="input" v-model="password" type="password" placeholder="Password" required />
-      <q-btn type="submit">Login</q-btn>
+        <input v-model="email" type="email" class="input" placeholder="Email" required />
+        <input v-model="password" type="password" class="input" placeholder="Password" required />
+        <button type="submit" class="input">Login</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </q-page-container>
@@ -38,7 +38,7 @@
 <style scoped>
 .login-container {
   position: absolute;
-  inset: 225px;
+  inset: 190px;
   margin: 0 auto;
   max-width: 400px;
   padding: 20px;
@@ -62,6 +62,7 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 15px;
 }
 
